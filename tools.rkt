@@ -11,9 +11,12 @@
     
     (define/public (get-filter) _filter)
     (define/public (get-items) _items) 
-    
-    (define/public (add item) (new Frame% [filter _filter] [items (append _items (list item))]))
 
+    ; managing an MTC item list 
+    (define/public (add item) (new Frame% [filter _filter] [items (append _items (list item))]))
+    (define/public (delay) (new Frame% [filter _filter] [items (append (cdr _items) (list (car _items)))] ))
+    (define/public (done) (new Frame% [filter _filter] [items (cdr _items)]))
+    
     ))
 
 (define f1 (new Frame% [filter (lambda (x) x)] [items '()]))
@@ -28,10 +31,22 @@
     (define/public (push x) (new Stack% [xs (cons x _xs)]))
     (define/public (pop) (new Stack% [xs (cdr _xs)]))
     (define/public (peek) (car _xs))
+    
+    (define/public (swap-top f) (new Stack% [xs (send (send (send this pop) push f) all)]))
     (define/public (all) _xs)))
                              
 (define s1 (new Stack% [xs '()]))
-(send (send (send (send (send s1 push 1) push 2) push 3) pop) all)
+(define s2 (send (send (send (send s1 push 1) push 2) push 3) pop))
+
+"S2"
+s2
+
+(send s2 all)
+(define s3 (send s2 swap-top 4))
+"S3"
+s3
+(send s3 all)
+
 
 
 (define MTC%
@@ -46,6 +61,8 @@
     (define/public (over-input in) (new MTC% [input in] [frame-stack _frame-stack] [report _report]))
     (define/public (over-fs fs) (new MTC% [input _input] [frame-stack fs] [report _report]))
     (define/public (over-report rep) (new MTC% [input _input] [frame-stack _frame-stack] [report rep] ))
+
+    (define/public (add item) (send (send this over-fs ) over-report (string-append "Added : " item)))
     
     ))
 
