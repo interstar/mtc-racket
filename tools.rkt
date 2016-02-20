@@ -11,41 +11,35 @@
     
     (define/public (get-filter) _filter)
     (define/public (get-items) _items) 
+    (define/public (over-items new-items) (new Frame% [filter (get-filter)] [items new-items]))
 
     ; managing an MTC item list 
-    (define/public (add item) (new Frame% [filter _filter] [items (append _items (list item))]))
-    (define/public (delay) (new Frame% [filter _filter] [items (append (cdr _items) (list (car _items)))] ))
-    (define/public (done) (new Frame% [filter _filter] [items (cdr _items)]))
+    (define/public (add item) (over-items (append _items (list item))))
+    (define/public (delay) (over-items (append (cdr _items) (list (car _items)))))
+    (define/public (delay-by n) 
+      (over-items 
+       (let ([before (take (cdr _items) n)]
+             [after (drop (cdr _items) n)])
+         (append before (list (car _items)) after)
+         )))
+    (define/public (done) (over-items (cdr _items)))
     
     ))
 
-(define f1 (new Frame% [filter (lambda (x) x)] [items '()]))
-((send f1 get-filter) 12)
-(send (send f1 add "hello world") get-items)
 
-(define Stack%
+(define FrameStack%
   (class object%
     (init xs)
     (define _xs xs)
     (super-new)
-    (define/public (push x) (new Stack% [xs (cons x _xs)]))
-    (define/public (pop) (new Stack% [xs (cdr _xs)]))
+    (define/public (push x) (new FrameStack% [xs (cons x _xs)]))
+    (define/public (push* . xs) (foldl (lambda (x s) (send s push x)) this xs))
+    (define/public (pop) (new FrameStack% [xs (cdr _xs)]))
     (define/public (peek) (car _xs))
+    (define/public (pop*) (list (peek) (pop)))
     
-    (define/public (swap-top f) (new Stack% [xs (send (send (send this pop) push f) all)]))
+    (define/public (swap-top f) (send (pop) push f))
     (define/public (all) _xs)))
-                             
-(define s1 (new Stack% [xs '()]))
-(define s2 (send (send (send (send s1 push 1) push 2) push 3) pop))
-
-"S2"
-s2
-
-(send s2 all)
-(define s3 (send s2 swap-top 4))
-"S3"
-s3
-(send s3 all)
 
 
 
@@ -67,3 +61,4 @@ s3
     ))
 
 
+(provide Frame% FrameStack% MTC%)
