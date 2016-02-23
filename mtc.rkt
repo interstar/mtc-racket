@@ -1,36 +1,23 @@
 #lang racket
 
-(define f-path "/home/phil/bin/todo.txt")
+(define f-path "/home/phil/Documents/development/writing/todos/todo.txt")
 
-(struct MTC (items report))
-
-(define (new-report mtc rep) (MTC (MTC-items mtc) rep))
-
-(define (add mtc item) (MTC (append (MTC-items mtc) (list item)) (string-append "Added : " item)))
-
-(define (delay mtc) 
-  (let ([items (MTC-items mtc)])
-    (MTC (append (cdr items) (list (car items))) (string-append "Delayed " (car items)))))
-
-(define (done mtc) 
-  (let ([items (MTC-items mtc)])
-    (MTC (cdr items) (string-append "Done :" (car items)))))
 
 (define (display-state input mtc)
-  (displayln (MTC-report mtc))
+  (displayln (send mtc get-report))
   (displayln (match input 
-    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (MTC-items mtc))]
-    [_ (if (not (empty? (MTC-items mtc))) 
-           (string-append "Next item : "(car (MTC-items mtc))) 
+    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]
+    [_ (if (not (send mtc empty?)) 
+           (string-append "Next item : " (send mtc next))
            "No items")] )))
     
 
 (define (process input mtc)
   (if (> (string-length input) 5)
       ;; it's a new item
-      (add mtc input) 
+      (send mtc add input) 
   (match input
-    ["" (new-report mtc "")]
+    ["" (send mtc over-report "")]
     ["/" (delay mtc)]
     ["*" (done mtc)]
     ["s" (begin

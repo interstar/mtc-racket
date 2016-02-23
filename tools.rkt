@@ -13,7 +13,10 @@
     (define/public (get-items) _items) 
     (define/public (over-items new-items) (new Frame% [filter (get-filter)] [items new-items]))
 
+    (define/public (is-empty?) (empty? _items))
+    
     ; managing an MTC item list 
+    (define/public (next) (car _items))
     (define/public (add item) (over-items (append _items (list item))))
     (define/public (delay) (over-items (append (cdr _items) (list (car _items)))))
     (define/public (delay-by n) 
@@ -26,6 +29,7 @@
     
     ))
 
+(define (new-Frame) (new Frame% [filter (lambda (x) x)] [items '()]))
 
 (define FrameStack%
   (class object%
@@ -38,16 +42,19 @@
     (define/public (peek) (car _xs))
     (define/public (pop*) (list (peek) (pop)))
     
+    (define/public (is-empty?) (empty? _xs))
+    
     (define/public (swap-top f) (send (pop) push f))
     (define/public (all) _xs)))
 
+(define (new-FrameStack) (new FrameStack% [xs (list (new-Frame))]))
 
 
 (define MTC%
   (class object%
-    (init input)
-    (init frame-stack)
-    (init report)
+    (init-field input)
+    (init-field frame-stack)
+    (init-field report)
     (define _input input)
     (define _frame-stack frame-stack)
     (define _report report)
@@ -56,9 +63,34 @@
     (define/public (over-fs fs) (new MTC% [input _input] [frame-stack fs] [report _report]))
     (define/public (over-report rep) (new MTC% [input _input] [frame-stack _frame-stack] [report rep] ))
 
-    (define/public (add item) (send (send this over-fs ) over-report (string-append "Added : " item)))
+    (define/public (get-report) (_report))
+    
+    (define/public (current-frame) (send _frame-stack peek))
+    (define/public (is-empty?) (send (current-frame) is-empty?))
+    (define/public (next) (send (current-frame) next))
+        
+    (define/public (operate inp f rep)
+      (let* ([top (send _frame-stack peek )]
+             [newtop (f top)])
+             (new MTC% [input inp] [frame-stack (send _frame-stack swap-top top)] [report rep])
+             ))
+
+    (define/public (add item) 
+      (let* ([f (λ (fm) (send fm add item))]
+             [r (string-append "Added : " item)] )
+        (operate item f r)))
+
+    (define/public (delay)
+      (let* ([f (λ (fm) (send fm delay))]
+             [r (string-append "Delayed : " (send+ (current-frame) (next)))] )
+        (operate "/" f r)))
     
     ))
+        
+        
+    
+    
 
+(define (new-MTC) (new MTC% [input ""] [frame-stack (new-FrameStack)] [report ""]))
 
-(provide Frame% FrameStack% MTC%)
+(provide Frame% new-Frame FrameStack% new-FrameStack MTC% new-MTC)
