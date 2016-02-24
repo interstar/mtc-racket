@@ -1,5 +1,6 @@
 #lang racket
 
+(require racket/format)
 
 (define Frame% 
   (class object%
@@ -64,6 +65,7 @@
     (define/public (over-report rep) (new MTC% [input _input] [frame-stack _frame-stack] [report rep] ))
 
     (define/public (get-report) (_report))
+    (define/public (get-items) (send (current-frame) get-items))
     
     (define/public (current-frame) (send _frame-stack peek))
     (define/public (is-empty?) (send (current-frame) is-empty?))
@@ -72,18 +74,27 @@
     (define/public (operate inp f rep)
       (let* ([top (send _frame-stack peek )]
              [newtop (f top)])
-             (new MTC% [input inp] [frame-stack (send _frame-stack swap-top top)] [report rep])
+             (new MTC% [input inp] [frame-stack (send _frame-stack swap-top newtop)] [report rep])
              ))
 
     (define/public (add item) 
       (let* ([f (λ (fm) (send fm add item))]
              [r (string-append "Added : " item)] )
         (operate item f r)))
-
+    
+    (define/public (add* . items)
+      (foldl (λ (item mtc) (send mtc add item)) this items))
+                      
+                      
     (define/public (delay)
       (let* ([f (λ (fm) (send fm delay))]
-             [r (string-append "Delayed : " (send+ (current-frame) (next)))] )
+             [r (string-append "Delayed : " (send (current-frame) next))] )
         (operate "/" f r)))
+    
+    (define/public (delay-by n) 
+      (let* ([f (λ (fm) (send fm delay-by n))]
+             [r (string-append "Delayed by " (number->string n) " : " (send (current-frame) next))] )
+        (operate (string-append "delay-by " (number->string n)) f r)))
     
     ))
         
