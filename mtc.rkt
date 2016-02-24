@@ -1,13 +1,16 @@
 #lang racket
 
+(require "tools.rkt")
+
+
 (define f-path "/home/phil/Documents/development/writing/todos/todo.txt")
 
 
 (define (display-state input mtc)
   (displayln (send mtc get-report))
-  (displayln (match input 
+  (displayln (match input
     ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]
-    [_ (if (not (send mtc empty?)) 
+    [_ (if (not (send mtc is-empty?)) 
            (string-append "Next item : " (send mtc next))
            "No items")] )))
     
@@ -18,15 +21,15 @@
       (send mtc add input) 
   (match input
     ["" (send mtc over-report "")]
-    ["/" (delay mtc)]
-    ["*" (done mtc)]
+    ["/" (send mtc delay)]
+    ["*" (send mtc done)]
     ["s" (begin
-           (display-lines-to-file (MTC-items mtc) f-path 
+           (display-lines-to-file (send mtc get-items) f-path 
                                   #:mode 'text 
                                   #:exists 'replace)
-           (MTC (MTC-items mtc) "Saved") )]
-    ["l" (new-report mtc "Your full list")]
-    [_ (MTC (MTC-items mtc) (string-append "Don't understand : " input)) ] )))
+           (send mtc over-report "Saved") )]
+    ["l" (send mtc over-report "Your full list")]
+    [_ (send mtc over-report (string-append "Don't understand : " input)) ] )))
 
 (define (main input mtc)  
     (display-state input mtc)
@@ -35,7 +38,9 @@
 
 (define args (current-command-line-arguments))
 
-(main "" (MTC (file->lines f-path) "Welcome to Mind Traffic Control"))
+(main "" (send+ (new-MTC) 
+                (load-items (file->lines f-path))
+                (over-report "Welcome to Mind Traffic Control")))
 
 
 

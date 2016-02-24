@@ -49,7 +49,9 @@
        [m2 (send m1 add item2)]
        [m3 (send m2 delay)]
        [m4 (send m2 add* "hello teenage america" "another green world")]
+       [m4a (send m2 load-items '("hello teenage america" "another green world"))]
        [m5 (send m4 delay-by 2)]
+       [m6 (send m1 over-report "hello world")]
       )
   
   (check-equal? (send m0 is-empty?) true)
@@ -57,5 +59,7 @@
   (check-equal? (send m2 next) item1)
   (check-equal? (send m3 next) item2)
   (check-equal? (send m4 get-items) '("this is the first item" "a second item" "hello teenage america" "another green world"))
+  (check-equal? (send m4a get-items) '("this is the first item" "a second item" "hello teenage america" "another green world"))
   (check-equal? (send m5 get-items) '("a second item" "hello teenage america" "this is the first item" "another green world"))
+  (check-equal? (send m6 get-report) "hello world")
   )

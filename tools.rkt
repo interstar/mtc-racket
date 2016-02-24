@@ -64,7 +64,7 @@
     (define/public (over-fs fs) (new MTC% [input _input] [frame-stack fs] [report _report]))
     (define/public (over-report rep) (new MTC% [input _input] [frame-stack _frame-stack] [report rep] ))
 
-    (define/public (get-report) (_report))
+    (define/public (get-report) _report)
     (define/public (get-items) (send (current-frame) get-items))
     
     (define/public (current-frame) (send _frame-stack peek))
@@ -81,10 +81,11 @@
       (let* ([f (λ (fm) (send fm add item))]
              [r (string-append "Added : " item)] )
         (operate item f r)))
-    
-    (define/public (add* . items)
+            
+    (define/public (load-items items) 
       (foldl (λ (item mtc) (send mtc add item)) this items))
-                      
+
+    (define/public (add* . items) (load-items items))
                       
     (define/public (delay)
       (let* ([f (λ (fm) (send fm delay))]
