@@ -3,8 +3,8 @@
 (require "tools.rkt")
 
 
-(define f-path "/home/phil/Documents/development/writing/todos/todo.txt")
-
+(define f-path "/home/phil/Documents/development/writing/todos/")
+(define f-name (string-append f-path "todo.txt"))
 
 (define (display-state input mtc)
   (displayln (send mtc get-report))
@@ -21,10 +21,12 @@
       (send mtc add input) 
   (match input
     ["" (send mtc over-report "")]
+    ["///" (send mtc delay-by 50)]
+    ["//" (send mtc delay-by 10)]
     ["/" (send mtc delay)]
     ["*" (send mtc done)]
     ["s" (begin
-           (display-lines-to-file (send mtc get-items) f-path 
+           (display-lines-to-file (send mtc get-items) f-name 
                                   #:mode 'text 
                                   #:exists 'replace)
            (send mtc over-report "Saved") )]
@@ -39,7 +41,7 @@
 (define args (current-command-line-arguments))
 
 (main "" (send+ (new-MTC) 
-                (load-items (file->lines f-path))
+                (load-items (file->lines f-name))
                 (over-report "Welcome to Mind Traffic Control")))
 
 

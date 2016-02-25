@@ -21,11 +21,13 @@
     (define/public (add item) (over-items (append _items (list item))))
     (define/public (delay) (over-items (append (cdr _items) (list (car _items)))))
     (define/public (delay-by n) 
-      (over-items 
-       (let ([before (take (cdr _items) n)]
-             [after (drop (cdr _items) n)])
-         (append before (list (car _items)) after)
-         )))
+      (let ([tail (cdr _items)])
+        (if (< (length tail) n) (send this delay)
+            (over-items 
+             (let ([before (take tail n)]
+                   [after (drop tail n)])
+               (append before (list (car _items)) after)
+             )))))
     (define/public (done) (over-items (cdr _items)))
     
     ))
@@ -89,13 +91,18 @@
                       
     (define/public (delay)
       (let* ([f (λ (fm) (send fm delay))]
-             [r (string-append "Delayed : " (send (current-frame) next))] )
+             [r (string-append "Delayed : " (next))] )
         (operate "/" f r)))
     
     (define/public (delay-by n) 
       (let* ([f (λ (fm) (send fm delay-by n))]
-             [r (string-append "Delayed by " (number->string n) " : " (send (current-frame) next))] )
+             [r (string-append "Delayed by " (number->string n) " : " (next))] )
         (operate (string-append "delay-by " (number->string n)) f r)))
+    
+    (define/public (done)
+      (let* ([f (λ (fm) (send fm done))]
+             [r (string-append "Done : " (next))])
+        (operate "*" f r)))
     
     ))
         
