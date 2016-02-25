@@ -104,6 +104,8 @@
              [r (string-append "Done : " (next))])
         (operate "*" f r)))
     
+    (define/public (count) (length (get-items)))
+    
     ))
         
         

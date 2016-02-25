@@ -9,7 +9,8 @@
 (define (display-state input mtc)
   (displayln (send mtc get-report))
   (displayln (match input
-    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]
+    ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (take (send mtc get-items) 10))]
+    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]               
     [_ (if (not (send mtc is-empty?)) 
            (string-append "Next item : " (send mtc next))
            "No items")] )))
@@ -30,7 +31,9 @@
                                   #:mode 'text 
                                   #:exists 'replace)
            (send mtc over-report "Saved") )]
+    ["ll" (send mtc over-report "First 10")]
     ["l" (send mtc over-report "Your full list")]
+    ["c" (send mtc over-report (string-append "No items : " (number->string (send mtc count))))]
     [_ (send mtc over-report (string-append "Don't understand : " input)) ] )))
 
 (define (main input mtc)  

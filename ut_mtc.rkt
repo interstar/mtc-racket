@@ -57,6 +57,7 @@
       )
   
   (check-equal? (send m0 is-empty?) true)
+  (check-equal? (send m0 count) 0)
   (check-equal? (send m1 next) item1)
   (check-equal? (send m1 is-empty?) false)
   (check-equal? (send m1a is-empty?) true)
@@ -66,5 +67,6 @@
   (check-equal? (send m4a get-items) '("this is the first item" "a second item" "hello teenage america" "another green world"))
   (check-equal? (send m5 get-items) '("a second item" "hello teenage america" "this is the first item" "another green world"))
   (check-equal? (send m5a get-items) '("a second item" "hello teenage america" "another green world" "this is the first item"))
+  (check-equal? (send m5 count) 4)
   (check-equal? (send m6 get-report) "hello world")
   )
