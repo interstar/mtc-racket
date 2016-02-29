@@ -1,5 +1,8 @@
 #lang racket
 
+; IGNORE THIS CODE ... I just couldn't quite bring myself to throw it away ... 
+; ... yet ...
+
 ; Testing Frame%
 (let ([f0 (new-Frame)])
   (check-equal? ((send f0 get-filter) 123) 123)
