@@ -55,7 +55,8 @@
              ))
              (over-report (string-append "Delayed by " (number->string n) " : " (car _items)))))))
     
-    (define/public (done) (over-items (cdr _items)))
+    (define/public (done) 
+      (send+ (over-items (cdr _items)) (over-report (string-append "Done : " (car _items)))))
 
     (define/public (pull-to-front p rep) 
       (let* ([hits (filter p (send this get-items))]
