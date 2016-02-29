@@ -4,21 +4,23 @@
 
 (define Frame% 
   (class object%
-    (init filter)
-    (init items)
-    (define _filter filter)
+    (init a-filter)
+    (init-field items)
+    (define _filter a-filter)
     (define _items items)
     (super-new)
     
     (define/public (get-filter) _filter)
     (define/public (get-items) _items) 
-    (define/public (over-items new-items) (new Frame% [filter (get-filter)] [items new-items]))
+    (define/public (over-items new-items) (new Frame% [a-filter (get-filter)] [items new-items]))
 
     (define/public (is-empty?) (empty? _items))
     
     ; managing an MTC item list 
     (define/public (next) (car _items))
     (define/public (add item) (over-items (append _items (list item))))
+    (define/public (add-front item) (over-items (append (list item) _items)))
+    
     (define/public (delay) (over-items (append (cdr _items) (list (car _items)))))
     (define/public (delay-by n) 
       (let ([tail (cdr _items)])
@@ -28,11 +30,31 @@
                    [after (drop tail n)])
                (append before (list (car _items)) after)
              )))))
+    
     (define/public (done) (over-items (cdr _items)))
+
+    (define/public (pull-to-front p) 
+      (let* ([hits (filter p (send this get-items))]
+             [misses (filter (λ(x)(not (p x))) _items)])
+        (over-items(append hits misses))))
+    
+    (define/public (throw-to-back p)
+      (pull-to-front (λ (x) (not (p x)))))
+
+    (define/public (edit extra)
+      (let* ([item (next)]
+             [edited (string-append item " " extra)])
+        (send (done) add-front edited)
+        ))
+
+    (define/public (kill pattern)
+      (let* ([misses (filter (λ(x)(not (regexp-match (pregexp pattern) x))) _items)])
+        (over-items misses)))
     
     ))
 
-(define (new-Frame) (new Frame% [filter (lambda (x) x)] [items '()]))
+
+(define (new-Frame) (new Frame% [a-filter (lambda (x) x)] [items '()]))
 
 (define FrameStack%
   (class object%
@@ -84,6 +106,12 @@
              [r (string-append "Added : " item)] )
         (operate item f r)))
             
+    (define/public (add-front item) 
+      (let* ([f (λ (fm) (send fm add-front item))]
+             [r (string-append "Added (front) : " item)] )
+        (operate item f r)))
+
+    
     (define/public (load-items items) 
       (foldl (λ (item mtc) (send mtc add item)) this items))
 
@@ -105,6 +133,27 @@
         (operate "*" f r)))
     
     (define/public (count) (length (get-items)))
+    
+    (define/public (pull-to-front p rep) 
+        (operate "" (λ (fm) (send fm pull-to-front p)) rep))
+    
+    (define/public (throw-to-back p rep)
+        (operate "" (λ (fm) (send fm throw-to-back p)) rep))
+    
+    (define/public (edit extra) 
+      (let* ([f (λ (fm) (send fm edit extra))]
+             [r (string-append "Appended " extra " to " (next))])
+        (operate "" f  r)))
+
+    (define/public (kill pattern)
+      (let* ([f (λ (fm) (send fm kill pattern))]
+             [r (string-append "Killed all : " pattern)])
+        (operate "" f r)))
+    
+    ;(define (keep pattern lines) (filter (lambda (s) (regexp-match (pregexp pattern) s)) lines))
+    ;(define (kill pattern lines) (filter (lambda (s) (not (regexp-match (pregexp pattern) s))) lines))
+
+    
     
     ))
         
