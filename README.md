@@ -4,7 +4,8 @@ A new Mind Traffic Control (command-line todo-queue) in Racket.
 
 ### Quickstart ###
 
-    Make sure you have Racket Lang and DrRacket installed. [https://racket-lang.org/](https://racket-lang.org/).
+Make sure you have Racket Lang and DrRacket installed. [https://racket-lang.org/](https://racket-lang.org/).
+
     git clone https://github.com/interstar/mtc-racket.git mtc
     cd mtc
     raco exe mtc.rkt
