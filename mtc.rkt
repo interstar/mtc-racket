@@ -1,9 +1,8 @@
 #lang racket
 
-(require "tools.rkt")
+(require "config.rkt" "tools.rkt")
 
 
-(define f-path "/home/phil/Documents/development/writing/todos/")
 (define f-name (string-append f-path "todo.txt"))
 
 (define (display-state input mtc)
