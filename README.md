@@ -47,7 +47,9 @@ At the same time, I admired [todo.txt](http://todotxt.com/) and its minimal comm
 
 MTC is designed to handle a LOT of todos. Hundreds or potentially thousands. And over long periods of time. The original MTC lasted 7 years. And some items NEVER got done. But they got remembered. I hope that I'll be able to say the same with the new MTC. MTC doesn't want you to see, or think about, or fiddle with, the "list". Just see and do the next item. And do some occassional bulk things that ensure you are getting the right items in front of you.
 
-Note: One difficulty I have in getting people interested in MTC is that they put in 2 or 3 tasks and think "so what?". MTC doesn't really make much sense or much of an impression with a couple of tasks. If you try it, you keep hitting the l key to see the whole list, see the list and then thing it's the same as any other todo-list app, but with less functionality. So if you are trying MTC, and you have an existing todo.txt or todo-list you can export in plain-text, then try copying THAT into the todo.txt file, and see how it feels in MTC.
+Note: One difficulty people have when looking at MTC is that they put in 2 or 3 (fake) tasks and think "so what?". MTC doesn't really make much sense or much of an impression with a couple of tasks. If you try it, you keep hitting the `l` key to see the whole list, see the list and then think "Meh! That's less useful than opening the file in a text editor."
+
+So if you *are* trying out MTC, and you have an existing todo.txt or todo-list you can export in plain-text, then my suggestion is to try copying THAT into the todo.txt file, and see how it feels in MTC. The more items you have, the more useful MTC becomes.
   
 Finally. MTC has always been also a learning exercise for me. Now it's my exercise for learning Racket and Lispy / Schemish ways of doing things. It will continue to be that. When Lispy comes into conflict with other requirements or nice-to-haves. Lispy and simple win.
 
