@@ -26,17 +26,17 @@ Type any line over 5 characters long to add it as a new todo item
 
 | command | explanation |
 | ------- | ----------- |
-| s  |  SAVE ... this is the most important command. If you do not explicitly save, you will lose what you put into MTC. |
-| /  |  delay the current "next item" ie. push it to the end of the queue. |
-| // |  push the current "next item" 10 back. Once your queue gets long you have things that ought to be done *"now-ish"*, but aren't your next task. This is for those. |
-| /// | push current "next item" 50 back. When your queue gets big, this becomes meaningful. Depending on how long your tasks are, this is effectively pushing the current one until the end of the afternoon or until next week. If your queue is really big, the single / can push the task months back. |
-| *  | done / delete. There's no difference. I used to store "done" items. But actually, you really don't care. MTC isn't about admiring long lists of crossed-out "completed" work. It's to manage the things you still have to do. |
-| + TEXT | finds ALL items that contain TEXT and pulls them to the front of the queue. There is no other "search" or "filter" in MTC. This is how you do search / filtering type stuff. NB .. TEXT can not have any spaces in it. At this time, it's only possible to pull a single search term. However, because pulling preserves ordering, if you pull a term like OFFICE and then pull a term like PARTY, you *will* get the items that match both OFFICE and PARTY at the top of the queue. |
-| - TEXT | finds ALL items that contain TEXT and pushes them to the end of the queue. The opposite of + ... this is for getting rid of an entire project if you know it's not something you want to think about at the moment. You can always pull it back to the front (ie. prioritize it) later. |
-| l  | List. You really shouldn't use this command. But occassionally you do need to scan the entire list. l lets you do it |
-| ll | a quick peek ahead at the first 10 items on queue
-| k* TEXT | be careful. This is multi-kill or bulk delete. It removes all items from the list that contain TEXT. Useful if you find that you've cancelled a project and want to remove all items from it from the queue. |
-| e EXTRA TEXT | appends EXTRA TEXT to the next item. There is currently no general edit item in MTC. But it's sometimes useful to be able to append some kind of extra tag or keyword to an existing item.|
+| `s`  |  SAVE ... this is the most important command. If you do not explicitly save, you will lose what you put into MTC. |
+| `/`  |  delay the current "next item" ie. push it to the end of the queue. |
+| `//` |  push the current "next item" 10 back. Once your queue gets long you have things that ought to be done *"now-ish"*, but aren't your next task. This is for those. |
+| `///` | push current "next item" 50 back. When your queue gets big, this becomes meaningful. Depending on how long your tasks are, this is effectively pushing the current one until the end of the afternoon or until next week. If your queue is really big, the single / can push the task months back. |
+| `*`  | done / delete. There's no difference. I used to store "done" items. But actually, you really don't care. MTC isn't about admiring long lists of crossed-out "completed" work. It's to manage the things you still have to do. |
+| `+ TEXT` | finds ALL items that contain TEXT and pulls them to the front of the queue. There is no other "search" or "filter" in MTC. This is how you do search / filtering type stuff. NB .. TEXT can not have any spaces in it. At this time, it's only possible to pull a single search term. However, because pulling preserves ordering, if you pull a term like OFFICE and then pull a term like PARTY, you *will* get the items that match both OFFICE and PARTY at the top of the queue. |
+| `- TEXT` | finds ALL items that contain TEXT and pushes them to the end of the queue. The opposite of + ... this is for getting rid of an entire project if you know it's not something you want to think about at the moment. You can always pull it back to the front (ie. prioritize it) later. |
+| `l`  | List. You really shouldn't use this command. But occassionally you do need to scan the entire list. l lets you do it |
+| `ll` | a quick peek ahead at the first 10 items on queue
+| `k* TEXT` | be careful. This is multi-kill or bulk delete. It removes all items from the list that contain TEXT. Useful if you find that you've cancelled a project and want to remove all items from it from the queue. |
+| `e EXTRA TEXT` | appends EXTRA TEXT to the next item. There is currently no general edit item in MTC. But it's sometimes useful to be able to append some kind of extra tag or keyword to an existing item.|
     
 
 ### Philosophy ###
