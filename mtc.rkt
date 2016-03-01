@@ -28,7 +28,7 @@
     (cond
       [(string=? op "+") (send mtc pull-to-front (λ (s) (regexp-match (pregexp arg) s)) (string-append "Pulled " arg))]
       [(string=? op "-") (send mtc throw-to-back (λ (s) (regexp-match (pregexp arg) s)) (string-append "Thrown " arg))]
-      [(string=? op "e") (send mtc edit arg)]
+      [(string=? op "e") (send mtc edit (string-join (cdr command) " " ))]
       [(string=? op "k*") (send mtc kill arg)]
       [else (send mtc add input)])))
       

@@ -46,7 +46,7 @@
     
     (define/public (delay-by n) 
       (let ([tail (cdr _items)])
-        (if (< (length tail) n) (send this delay)
+        (if (< (length tail) n) (send+ this (delay) (over-report (string-append "Delayed to end : " (car _items) )))
             (send+
              (over-items 
              (let ([before (take tail n)]

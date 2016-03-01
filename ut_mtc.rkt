@@ -2,6 +2,7 @@
 
 (require rackunit "tools.rkt")
 
+
 ; Testing MTC%
 
 (let* ([m0 (new-MTC)]
@@ -19,7 +20,7 @@
        [m6 (send m1 over-report "hello world")]
        [m7 (send m5 pull-to-front (λ (s) (regexp-match (pregexp "item") s)) "Pulling item to front")]       
        [m8 (send m5 throw-to-back (λ (s) (regexp-match (pregexp "item") s)) "Throwing item to back")]
-       [m9 (send m4 edit "EXTRA")]
+       [m9 (send m4 edit "EXTRA WORDS WITH SPACES")]
        [m10 (send m8 kill "item")]
       )
   
@@ -41,14 +42,15 @@
   (check-equal? (send m5 get-items) '("a second item" "hello teenage america" "this is the first item" "another green world"))
   (check-equal? (send m5 get-report) "Delayed by 2 : this is the first item")
   (check-equal? (send m5a get-items) '("a second item" "hello teenage america" "another green world" "this is the first item"))
+  (check-equal? (send m5a get-report) "Delayed to end : this is the first item")
   (check-equal? (send m5 count) 4)
   (check-equal? (send m6 get-report) "hello world")
   (check-equal? (send m7 get-items) '("a second item" "this is the first item" "hello teenage america" "another green world"))
   (check-equal? (send m7 get-report) "Pulling item to front")
   (check-equal? (send m8 get-items) '( "hello teenage america" "another green world" "a second item" "this is the first item"))
   (check-equal? (send m8 get-report) "Throwing item to back")  
-  (check-equal? (send m9 get-report) "Appended EXTRA to this is the first item")
-  (check-equal? (send m9 get-items) '("this is the first item EXTRA" "a second item" "hello teenage america" "another green world"))
+  (check-equal? (send m9 get-report) "Appended EXTRA WORDS WITH SPACES to this is the first item")
+  (check-equal? (send m9 get-items) '("this is the first item EXTRA WORDS WITH SPACES" "a second item" "hello teenage america" "another green world"))
   (check-equal? (send m10 get-items) '( "hello teenage america" "another green world"))
   (check-equal? (send m10 get-report) "Kill*ed ''item''")
   )
