@@ -2,5 +2,5 @@
 
 (provide f-path)
 
-(define f-path "/home/phil/Documents/development/writing/todos/")
+(define f-path "/PATH/TO/YOUR/TODOS/")
 
