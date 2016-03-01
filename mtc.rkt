@@ -5,10 +5,13 @@
 
 (define f-name (string-append f-path "todo.txt"))
 
+(define safe-take (xs n) 
+  (if (< n (length xs)) (take xs n) (take xs (length xs))))
+
 (define (display-state input mtc)
   (displayln (send mtc get-report))
   (displayln (match input
-    ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (take (send mtc get-items) 10))]
+    ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (send mtc get-items) 10))]
     ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]               
     [_ (if (not (send mtc is-empty?)) 
            (string-append "Next item : " (send mtc next))
