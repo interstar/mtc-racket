@@ -5,8 +5,11 @@
 
 (define f-name (string-append f-path "todo.txt"))
 
-(define safe-take (xs n) 
-  (if (< n (length xs)) (take xs n) (take xs (length xs))))
+(define (safe-take xs n) 
+  (let ([ln (length xs)])
+    (if (< n ln) 
+      (take xs n) 
+      (take xs ln) )))
 
 (define (display-state input mtc)
   (displayln (send mtc get-report))
