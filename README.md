@@ -26,6 +26,7 @@ Type any line over 5 characters long to add it as a new todo item
 
 | command | explanation |
 | ------- | ----------- |
+| `h`  |  Help. Show this list of commands.
 | `s`  |  SAVE ... this is the most important command. If you do not explicitly save, you will lose what you put into MTC. |
 | `/`  |  delay the current "next item" ie. push it to the end of the queue. |
 | `//` |  push the current "next item" 10 back. Once your queue gets long you have things that ought to be done *"now-ish"*, but aren't your next task. This is for those. |
