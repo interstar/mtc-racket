@@ -7,20 +7,24 @@
     (init-field items)
     (init-field input)
     (init-field report)
+    (init-field file-path)
     
     (define _input input)
     (define _items items)
     (define _report report)
+    (define _file-path file-path)
     
     (super-new)
     
     (define/public (get-items) _items) 
     (define/public (get-input) _input)
     (define/public (get-report) _report)
+    (define/public (get-file-path) _file-path)
     
-    (define/public (over-items new-items) (new MTC% [input (get-input)] [items new-items] [report (get-report)] ))
-    (define/public (over-report rep) (new MTC% [input (get-input)] [items (get-items)] [report rep]))
-    (define/public (over-input inp) (new MTC% [input inp] [items (get-items)] [report (get-report)]))
+    (define/public (over-items new-items) (new MTC% [input (get-input)] [items new-items] [report (get-report)] [file-path (get-file-path)]))
+    (define/public (over-report rep) (new MTC% [input (get-input)] [items (get-items)] [report rep] [file-path (get-file-path)]))
+    (define/public (over-input inp) (new MTC% [input inp] [items (get-items)] [report (get-report)] [file-path (get-file-path)]))
+    (define/public (over-file-path fp) (new MTC% [input (get-input)] [items (get-items)] [report (get-report)] [file-path fp]))
 
     (define/public (is-empty?) (empty? _items))
     (define/public (count) (length (get-items)))
@@ -80,6 +84,6 @@
 
 
     
-(define (new-MTC) (new MTC% [input ""] [items '()] [report ""]))
+(define (new-MTC) (new MTC% [input ""] [items '()] [report ""] [file-path ""]))
 
 (provide MTC% new-MTC)

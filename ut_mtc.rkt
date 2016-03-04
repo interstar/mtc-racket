@@ -22,10 +22,12 @@
        [m8 (send m5 throw-to-back (λ (s) (regexp-match (pregexp "item") s)) "Throwing item to back")]
        [m9 (send m4 edit "EXTRA WORDS WITH SPACES")]
        [m10 (send m8 kill "item")]
+       [m11 (send m0 over-file-path "a/file/path.txt")]
       )
   
   (check-equal? (send m0 is-empty?) true)
   (check-equal? (send m0 count) 0)
+  (check-equal? (send m0 get-file-path) "")
   (check-equal? (send m1 next) item1)
   (check-equal? (send m1 is-empty?) false)
   (check-equal? (send m1 get-report) "Added : this is the first item")
@@ -53,4 +55,5 @@
   (check-equal? (send m9 get-items) '("this is the first item EXTRA WORDS WITH SPACES" "a second item" "hello teenage america" "another green world"))
   (check-equal? (send m10 get-items) '( "hello teenage america" "another green world"))
   (check-equal? (send m10 get-report) "Kill*ed ''item''")
+  (check-equal? (send m11 get-file-path) "a/file/path.txt")
   )
