@@ -76,7 +76,8 @@ e EXTRA TEXT : appends EXTRA TEXT to the next item. There is currently no genera
 
 ;;; Files
 
-(define (file-name->MTC f-name) 
+(define (file-name->MTC f-name)   
+  (when (not (file-exists? f-name)) (display-to-file "" f-name))
   (send+ (new-MTC)
          (load-items (file->lines f-name))
          (over-file-path f-name)
@@ -90,10 +91,12 @@ File is " f-name))))
 ;
 ; ((todo-dir . "/home/phil/Documents/development/writing/todos/"))
 ;
+; See README for more info.
+;
 (define (get-config home-path name default)
   (let* ([config-path (string-append home-path "bin/.mtc/config.rkt")]
          [path (string->path config-path)])
-    (with-handlers ([exn:fail? (λ (e) (displayln e) default)])
+    (with-handlers ([exn:fail? (λ (e) default)])
       (let* ([s (file->value (string->path config-path))])
         (dict-ref s name default )))))
 

@@ -12,13 +12,29 @@ Make sure you have Racket Lang and DrRacket installed. [https://racket-lang.org/
     ./mtc
     
 
-On running, MTC shows you the *current next item* in your todo-queue. The main philosophy of mtc is to focus on doing tasks, NOT on managing todo-lists. That's why it's a minimal command-line interface with some useful defaults for postponing and delaying items. Ideally MTC should be *invisible* 99.99% of the time.
+On running, you should see something like this :
+
+    Welcome to Mind Traffic Control
+    File is /home/YOURNAME/Documents/todo.txt
+    No items
+
+To add an item to the list simply type it and hit return.
+
+MTC normally shows you the *current next item* in your todo-queue and nothing more. It's up to you what you do with it.
+
+The main philosophy of mtc is to focus on doing tasks, NOT on managing todo-lists. That's why it's a minimal command-line interface with some useful defaults for postponing and delaying items. Ideally MTC should be *invisible* 99.99% of the time.
 
 ### Configuring ###
 
-The file config.rkt defines the path to a directory where your todo.txt file will live.
+MTC defaults to keeping todos in a file called /home/YOURNAME/Documents/todo.txt but you can change this in a configuration file.
 
-It defaults to the same directory as the program, but you probably want to direct it somewhere else.
+MTC's configuration is stored in HOME/bin/.mtc/config.rkt and is represented as a simple Racket dictionary. 
+
+The value **todo-dir** is used to represente MTC's working directory. Eg. a simple config could look like :
+
+    ( (todo-dir . "/home/YOURNAME/mytodos/") )
+
+Save something like this into your config.rkt file, make sure that directory exists, and restart mtc.
 
 ### Instructions ###
 
