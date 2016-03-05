@@ -74,6 +74,8 @@ e EXTRA TEXT : appends EXTRA TEXT to the next item. There is currently no genera
     (let ([new-input (read-line (current-input-port) 'any)])
       (main new-input (process new-input mtc))))
 
+;;; Files
+
 (define (file-name->MTC f-name) 
   (send+ (new-MTC)
          (load-items (file->lines f-name))
@@ -81,16 +83,29 @@ e EXTRA TEXT : appends EXTRA TEXT to the next item. There is currently no genera
          (over-report (string-append "Welcome to Mind Traffic Control
 File is " f-name))))
 
+; Thanks Asumu Takikawa
+; http://stackoverflow.com/questions/35803167/how-can-i-tell-a-racket-program-to-load-optional-configuration-code/35805340#35805340
+; 
+; Config file is just a definition of a dictionary ... eg.
+;
+; ((todo-dir . "/home/phil/Documents/development/writing/todos/"))
+;
+(define (get-config home-path name default)
+  (let* ([config-path (string-append home-path "bin/.mtc/config.rkt")]
+         [path (string->path config-path)])
+    (with-handlers ([exn:fail? (λ (e) (displayln e) default)])
+      (let* ([s (file->value (string->path config-path))])
+        (dict-ref s name default )))))
+
+
 ;;;; Imperative bit.
 
 (define args (current-command-line-arguments))
 
 ; configurations
 (let* ([home (path->string (find-system-path 'home-dir))]
-       [config-path (string-append home "/bin/.mtc/config.rkt")]
-       [configs (file->value config-path)]
-       [f-name (string-append (dict-ref configs 'f-path 
-                                        (string-append home "Documents/") ) "todo.txt") ])
+       [mtc-path (get-config home 'todo-dir (string-append home "Documents/") )]
+       [f-name (string-append mtc-path "todo.txt") ])
    (main "" (file-name->MTC f-name)))
 
 
