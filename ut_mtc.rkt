@@ -1,6 +1,6 @@
 #lang racket
 
-(require rackunit "tools.rkt")
+(require rackunit "tools.rkt" "actions.rkt")
 
 
 ; Testing MTC%
@@ -22,7 +22,10 @@
        [m8 (send m5 throw-to-back (λ (s) (regexp-match (pregexp "item") s)) "Throwing item to back")]
        [m9 (send m4 edit "EXTRA WORDS WITH SPACES")]
        [m10 (send m8 kill "item")]
-       [m11 (send m0 over-file-path "a/file/path.txt")]
+       
+       [m11 (send m0 over-path "a/path/to/")]
+       [m12 (send m11 over-file "todo.txt")]
+       
       )
   
   (check-equal? (send m0 is-empty?) true)
@@ -55,5 +58,28 @@
   (check-equal? (send m9 get-items) '("this is the first item EXTRA WORDS WITH SPACES" "a second item" "hello teenage america" "another green world"))
   (check-equal? (send m10 get-items) '( "hello teenage america" "another green world"))
   (check-equal? (send m10 get-report) "Kill*ed ''item''")
-  (check-equal? (send m11 get-file-path) "a/file/path.txt")
+  (check-equal? (send m11 get-file-path) "a/path/to/")
+  (check-equal? (send m12 get-file) "todo.txt")
+  (check-equal? (send m12 get-file-path) "a/path/to/todo.txt")
+  )
+
+; Testing actions
+
+; URLS
+(let* ([x 1])
+  (check-equal? (has-url "") #f)
+  (check-equal? (has-url "fdfbksdj fkdsjf sdkhto psfksdj +fgsk jf") #f)
+  (check-equal? (has-url "this contains https://url.com and other text") #t)
+  (check-equal? (has-url "this contains https://url.com and other text another http://another.net") #t)
+  
+  (check-equal? (extract-url "this contains https://url.com and other text") "https://url.com")
+  (check-equal? (extract-url "this contains http://url.com and other text") "http://url.com")
+  (check-equal? (extract-url "this contains http://url.com and other text another http://another.net") "http://url.com")  
+  
+  )
+
+; Pages
+(let* ([mtc (send+ (new-MTC) (over-file-path "/home/phil/pages/"))]
+       [pp (page-path mtc "hello-world")])
+  (check-equal? pp "/home/phil/pages/hello-world.txt")
   )

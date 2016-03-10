@@ -1,6 +1,7 @@
 #lang racket
 
-(require "tools.rkt")
+(require "tools.rkt" "actions.rkt")
+
 
 ; UI Code
 (define (safe-take xs n) 
@@ -49,13 +50,19 @@
       [(string=? op "+") (send mtc pull-to-front (λ (s) (regexp-match (pregexp arg) s)) (string-append "Pulled " arg))]
       [(string=? op "-") (send mtc throw-to-back (λ (s) (regexp-match (pregexp arg) s)) (string-append "Thrown " arg))]
       [(string=? op "e") (send mtc edit (string-join (cdr command) " " ))]
+      [(string=? op "q") 
+       (send mtc over-report
+             (if (page-exists? mtc arg) 
+           (string-append "page " (page-path mtc arg) " exists")
+           (string-append "page " (page-path mtc arg) " DOESN'T exist")))]
       [(string=? op "k*") (send mtc kill arg)]
       [else (send mtc add input)])))
       
 (define (process-short input mtc)
-  (if (> (string-length input) 5) (send mtc add input) 
+  (let* ([reply (lambda (s) (send mtc over-report s))])
+    (if (> (string-length input) 5) (send mtc add input) 
       (match input
-        ["" (send mtc over-report "")]
+        ["" (reply "")]
         ["///" (send mtc delay-by 50)]
         ["//" (send mtc delay-by 10)]
         ["/" (send mtc delay)]
@@ -64,12 +71,13 @@
                (display-lines-to-file (send mtc get-items) (send mtc get-file-path) 
                                       #:mode 'text 
                                       #:exists 'replace)
-               (send mtc over-report "Saved") )]
-        ["ll" (send mtc over-report "First 10")]
-        ["l" (send mtc over-report "Your full list")]
-        ["c" (send mtc over-report (string-append "No items : " (number->string (send mtc count))))]
-        ["h" (send mtc over-report "MTC Help")]
-        [_ (send mtc over-report (string-append "Don't understand : " input)) ] )))
+               (reply "Saved") )]
+        ["ll" (reply "First 10")]
+        ["l" (reply "Your full list")]
+        ["c" (reply (string-append "No items : " (number->string (send mtc count))))]
+        ["h" (reply "MTC Help")]
+        ["a" (reply (string-append ("Analyze Url : " (analyze (send mtc next) ))))]
+        [_ (reply (string-append "Don't understand : " input)) ] ))) )
 
 (define (main input mtc)  
     (display-state input mtc)
@@ -101,6 +109,7 @@ File is " f-name))))
     (with-handlers ([exn:fail? (λ (e) default)])
       (let* ([s (file->value (string->path config-path))])
         (dict-ref s name default )))))
+
 
 
 ;;;; Imperative bit.
