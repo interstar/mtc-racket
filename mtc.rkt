@@ -11,10 +11,11 @@
       (take xs ln) )))
 
 (define (display-state input mtc)
-  (displayln (send mtc get-report))
+  (displayln (MTC-report mtc))
   (displayln (match input
-    ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (send mtc get-items) 10))]
-    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (send mtc get-items))]
+    ["lll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (MTC-items mtc) 50))]               
+    ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (MTC-items mtc) 10))]               
+    ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (MTC-items mtc))]
     ["h" "Commands
 
  s\tSAVE : If you do not explicitly save, you will lose what you put into MTC.
@@ -31,8 +32,8 @@
  k* TEXT\tMulti-kill or bulk delete. It removes all items from the list that contain TEXT.
  e EXTRA TEXT\tAppends EXTRA TEXT to the next item."]
               
-    [_ (if (not (send mtc is-empty?)) 
-           (string-append "Next item : " (send mtc next))
+    [_ (if (not (is-empty? mtc)) 
+           (string-append "Next item : " (next mtc))
            "No items")] ))
   )
     
@@ -45,38 +46,41 @@
 (define (process-command input mtc)
   (let* ([command (string-split input)]
          [op (car command)]
-         [arg (cadr command)])
+         [arg (cadr command)]
+         [args (string-join (cdr command) " " )])
     (cond
-      [(string=? op "+") (send mtc pull-to-front (λ (s) (regexp-match (pregexp arg) s)) (string-append "Pulled " arg))]
-      [(string=? op "-") (send mtc throw-to-back (λ (s) (regexp-match (pregexp arg) s)) (string-append "Thrown " arg))]
-      [(string=? op "e") (send mtc edit (string-join (cdr command) " " ))]
+      [(string=? op "+") (pull-to-front mtc  (λ (s) (regexp-match (pregexp arg) s)) (string-append "Pulled " arg))]
+      [(string=? op "-") (throw-to-back mtc  (λ (s) (regexp-match (pregexp arg) s)) (string-append "Thrown " arg))]
+      [(string=? op "e") (edit mtc args)]
       [(string=? op "q") 
-       (send mtc over-report
+       (over-report mtc 
              (if (page-exists? mtc arg) 
            (string-append "page " (page-path mtc arg) " exists")
            (string-append "page " (page-path mtc arg) " DOESN'T exist")))]
-      [(string=? op "k*") (send mtc kill arg)]
-      [else (send mtc add input)])))
+      [(string=? op "k*") (kill mtc  arg)]
+      [else (add mtc input)])))
       
 (define (process-short input mtc)
-  (let* ([reply (lambda (s) (send mtc over-report s))])
-    (if (> (string-length input) 5) (send mtc add input) 
+  (let* ([reply (lambda (s) (over-report mtc s))])
+    (if (> (string-length input) 5) (add mtc input) 
       (match input
         ["" (reply "")]
-        ["///" (send mtc delay-by 50)]
-        ["//" (send mtc delay-by 10)]
-        ["/" (send mtc delay)]
-        ["*" (send mtc done)]
+        ["///" (delay-by mtc  50)]
+        ["//" (delay-by mtc  10)]
+        ["/" (delay mtc )]
+        ["\\" (pull-last mtc)]
+        ["*" (done mtc )]
         ["s" (begin
-               (display-lines-to-file (send mtc get-items) (send mtc get-file-path) 
+               (display-lines-to-file (MTC-items mtc ) (make-file-path mtc ) 
                                       #:mode 'text 
                                       #:exists 'replace)
                (reply "Saved") )]
         ["ll" (reply "First 10")]
+        ["lll" (reply "First 50")]
         ["l" (reply "Your full list")]
-        ["c" (reply (string-append "No items : " (number->string (send mtc count))))]
+        ["c" (reply (string-append "No items : " (number->string (count mtc ))))]
         ["h" (reply "MTC Help")]
-        ["a" (reply (string-append ("Analyze Url : " (analyze (send mtc next) ))))]
+        ["a" (reply (string-append "Analyze Url : " (analyze (next mtc ) )))]
         [_ (reply (string-append "Don't understand : " input)) ] ))) )
 
 (define (main input mtc)  
@@ -86,14 +90,13 @@
 
 ;;; Files
 
-(define (file-name->MTC f-name)   
-  (when (not (file-exists? f-name)) (display-to-file "" f-name))
-  (send+ (new-MTC)
-         (load-items (file->lines f-name))
-         (over-file-path f-name)
-         (over-report (string-append "Welcome to Mind Traffic Control
-File is " f-name))))
-
+(define (file-name->MTC f-path f-name)  
+  (let* ([mtc (over-file-path (new-MTC) f-path f-name)])
+    (when (not (file-exists? (make-file-path mtc))) (display-to-file "" (make-file-path mtc)))
+    (over-report (load-items mtc (file->lines (make-file-path mtc)))
+                 (string-append "Welcome to Mind Traffic Control
+Todo file is " (make-file-path mtc)))))
+ 
 ; Thanks Asumu Takikawa
 ; http://stackoverflow.com/questions/35803167/how-can-i-tell-a-racket-program-to-load-optional-configuration-code/35805340#35805340
 ; 
@@ -118,9 +121,8 @@ File is " f-name))))
 
 ; configurations
 (let* ([home (path->string (find-system-path 'home-dir))]
-       [mtc-path (get-config home 'todo-dir (string-append home "Documents/") )]
-       [f-name (string-append mtc-path "todo.txt") ])
-   (main "" (file-name->MTC f-name)))
+       [path (get-config home 'todo-dir (string-append home "Documents/") )])
+   (main "" (file-name->MTC path "todo.txt")))
 
 
 

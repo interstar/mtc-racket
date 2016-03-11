@@ -1,94 +1,85 @@
 #lang racket
 
-(require racket/format)
+(require racket/format )
 
-(define MTC% 
-  (class object%
-    (init-field items)
-    (init-field input)
-    (init-field report)
-    (init-field path)
-    (init-field file)
-    
-    (define _input input)
-    (define _items items)
-    (define _report report)
-    (define _path path)
-    (define _file file)
-    
-    (super-new)
-    
-    (define/public (get-items) _items) 
-    (define/public (get-input) _input)
-    (define/public (get-report) _report)
-    (define/public (get-path) _path)
-    (define/public (get-file) _file)
-    (define/public (get-file-path) (string-append (get-path) (get-file)))
-    
-    (define/public (over-items new-items) 
-      (new MTC% [input (get-input)] [items new-items] [report (get-report)] [file-path (get-file-path)]))
-    (define/public (over-report rep) (new MTC% [input (get-input)] [items (get-items)] [report rep] [file-path (get-file-path)]))
-    (define/public (over-input inp) (new MTC% [input inp] [items (get-items)] [report (get-report)] [file-path (get-file-path)]))
-    (define/public (over-file-path fp) (new MTC% [input (get-input)] [items (get-items)] [report (get-report)] [file-path fp]))
-
-    (define/public (is-empty?) (empty? _items))
-    (define/public (count) (length (get-items)))
-    
-    ; managing an MTC item list 
-    (define/public (next) (car _items))
-    
-    (define/public (add item) 
-      (send+ (over-items (append _items (list item))) 
-             (over-report (string-append "Added : " item))))
-    
-    (define/public (add-front item) 
-      (send+ (over-items (append (list item) _items)) 
-             (over-report (string-append "Added (first) : " item))))
-    
-    (define/public (load-items items) (foldl (λ (item mtc) (send mtc add item)) this items))
-
-    (define/public (add* . items) (load-items items))    
-    
-    (define/public (delay) 
-      (send+ (over-items (append (cdr _items) (list (car _items)))) 
-             (over-report (string-append "Delayed : " (car _items)) )))
-    
-    (define/public (delay-by n) 
-      (let ([tail (cdr _items)])
-        (if (< (length tail) n) (send+ this (delay) (over-report (string-append "Delayed to end : " (car _items) )))
-            (send+
-             (over-items 
-             (let ([before (take tail n)]
-                   [after (drop tail n)])
-               (append before (list (car _items)) after)
-             ))
-             (over-report (string-append "Delayed by " (number->string n) " : " (car _items)))))))
-    
-    (define/public (done) 
-      (send+ (over-items (cdr _items)) (over-report (string-append "Done : " (car _items)))))
-
-    (define/public (pull-to-front p rep) 
-      (let* ([hits (filter p (send this get-items))]
-             [misses (filter (λ(x)(not (p x))) _items)])
-        (send+ (over-items (append hits misses)) (over-report rep) )))
-    
-    (define/public (throw-to-back p rep)
-      (pull-to-front (λ (x) (not (p x))) rep))
-
-    (define/public (edit extra)
-      (let* ([item (next)]
-             [edited (string-append item " " extra)])
-        (send+ (done) (add-front edited) (over-report (string-append "Appended " extra " to " item)))
-        ))
-
-    (define/public (kill pattern)
-      (let* ([misses (filter (λ(x)(not (regexp-match (pregexp pattern) x))) _items)])
-        (send+ (over-items misses) (over-report (string-append "Kill*ed ''" pattern "''")))))
-    
-    ))
-
+(struct MTC (items input report path file-name))
 
     
-(define (new-MTC) (new MTC% [input ""] [items '()] [report ""] [file-path ""]))
+(define (over-items mtc new-items) (struct-copy MTC mtc [items new-items]))
+(define (over-report mtc rep) (struct-copy MTC mtc [report rep]))
+(define (over-input mtc inp) (struct-copy MTC mtc [input inp]))
+(define (over-path mtc new-path) (struct-copy MTC mtc [path new-path]))
+(define (over-file-name mtc f-name) (struct-copy MTC mtc [file-name f-name]))
 
-(provide MTC% new-MTC)
+(define (over-file-path mtc path name) (over-file-name (over-path mtc path) name))
+(define (make-file-path mtc) (string-append (MTC-path mtc) (MTC-file-name mtc)))
+
+(define (is-empty? mtc) (empty? (MTC-items mtc)))
+(define (count mtc) (length (MTC-items mtc)))
+
+; managing an MTC item list 
+(define (next mtc) (car (MTC-items mtc)))
+(define (tail mtc) (cdr (MTC-items mtc)))
+    
+(define (add mtc item) 
+  (over-report (over-items mtc (append (MTC-items mtc) (list item)))
+               (string-append "Added : " item)))
+
+(define (add-front mtc item)
+  (over-report (over-items mtc (append (list item) (MTC-items mtc)))
+               (string-append "Added (first) : " item)))
+    
+(define (load-items mtc items) (foldl (λ (item mtc) (add mtc item)) mtc items))
+
+(define (add* mtc . items) (load-items mtc items))
+
+(define (delay mtc) 
+  (let ([items (MTC-items mtc)])
+      (over-report (over-items mtc (append (cdr items) (list (car items)))) 
+                   (string-append "Delayed : " (car items) ))))
+    
+(define (delay-by mtc n) 
+  (if (< (length (tail mtc)) n)
+      (over-report (delay mtc) (string-append "Delayed to end : " (next mtc)))
+      (over-report (over-items mtc 
+                      (let ([before (take (tail mtc) n)]
+                            [after (drop (tail mtc) n)])
+                        (append before (list (next mtc)) after)))
+                   (string-append "Delayed by " (number->string n) " : " (next mtc)))))
+    
+(define (done mtc) 
+      (over-report (over-items mtc (tail mtc)) (string-append "Done : " (next mtc))))
+
+(define (pull-last mtc) 
+  (let* ([size (count mtc)]
+         [sting (last (MTC-items mtc))]
+         [snake (take (MTC-items mtc) (- size 1))]
+         [new-items (append (list sting) snake)])
+    (over-report (over-items mtc new-items) (string-append "Pulled from end : " sting))))
+
+(define (pull-to-front mtc p rep) 
+      (let* ([hits (filter p (MTC-items mtc))]
+             [misses (filter (λ(x)(not (p x))) (MTC-items mtc))])
+        (over-report (over-items mtc (append hits misses)) rep )))
+
+(define (throw-to-back mtc p rep) (pull-to-front mtc (λ (x) (not (p x))) rep))
+
+(define (edit mtc extra)
+  (let* ([item (next mtc)]
+         [edited (string-append item " " extra)])
+    (over-report (add-front (done mtc) edited) (string-append "Appended " extra " to " item)))
+    )
+
+(define (kill mtc pattern)
+  (let* ([misses (filter (λ(x)(not (regexp-match (pregexp pattern) x))) (MTC-items mtc))])
+        (over-report (over-items mtc misses) (string-append "Kill*ed ''" pattern "''"))))
+    
+   
+;; Order of MTC struct  (items input report path file-name)    
+(define (new-MTC) (MTC '() "" "" "" ""))
+
+(provide new-MTC over-items over-report over-input 
+         over-path over-file-name make-file-path over-file-path
+         is-empty? count next tail add add-front load-items add* delay delay-by done
+         pull-last pull-to-front throw-to-back edit kill
+         MTC-items MTC-report MTC-path MTC-file-name)

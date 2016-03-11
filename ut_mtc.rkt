@@ -7,60 +7,64 @@
 
 (let* ([m0 (new-MTC)]
        [item1 "this is the first item"]
-       [m1 (send m0 add item1 )]
-       [m1a (send m1 done)]
+       [m1 (add m0 item1 )]
+       [m1a (done m1)]
        [item2 "a second item"]
-       [m2 (send m1 add item2)]
-       [m2a (send m2 add-front "FIRST!!!")]
-       [m3 (send m2 delay)]
-       [m4 (send m2 add* "hello teenage america" "another green world")]
-       [m4a (send m2 load-items '("hello teenage america" "another green world"))]
-       [m5 (send m4 delay-by 2)]
-       [m5a (send m4 delay-by 50)]
-       [m6 (send m1 over-report "hello world")]
-       [m7 (send m5 pull-to-front (λ (s) (regexp-match (pregexp "item") s)) "Pulling item to front")]       
-       [m8 (send m5 throw-to-back (λ (s) (regexp-match (pregexp "item") s)) "Throwing item to back")]
-       [m9 (send m4 edit "EXTRA WORDS WITH SPACES")]
-       [m10 (send m8 kill "item")]
+       [m2 (add m1 item2)]
+       [m2a (add-front m2 "FIRST!!!")]
+       [m3 (delay m2)]
+       [m4 (add* m2 "hello teenage america" "another green world")]
+       [m4a (load-items m2 '("hello teenage america" "another green world"))]
+       [m5 (delay-by m4 2)]
+       [m5a (delay-by m4 50)]
+       [m6 (over-report m1 "hello world")]
+       [m7 (pull-to-front m5 (λ (s) (regexp-match (pregexp "item") s)) "Pulling item to front")]       
+       [m8 (throw-to-back m5 (λ (s) (regexp-match (pregexp "item") s)) "Throwing item to back")]
+       [m9 (edit m4 "EXTRA WORDS WITH SPACES")]
+       [m10 (kill m8 "item")]
        
-       [m11 (send m0 over-path "a/path/to/")]
-       [m12 (send m11 over-file "todo.txt")]
+       [m11 (over-path m0 "a/path/to/")]
+       [m12 (over-file-name m11 "todo.txt")]
+       [m13 (over-file-path m0 "another/path/" "file.tmp")]
+       [m14 (pull-last m4)]
        
       )
   
-  (check-equal? (send m0 is-empty?) true)
-  (check-equal? (send m0 count) 0)
-  (check-equal? (send m0 get-file-path) "")
-  (check-equal? (send m1 next) item1)
-  (check-equal? (send m1 is-empty?) false)
-  (check-equal? (send m1 get-report) "Added : this is the first item")
-  (check-equal? (send m1a is-empty?) true)
-  (check-equal? (send m1a get-report) "Done : this is the first item")
-  (check-equal? (send m2 next) item1)
-  (check-equal? (send m2a next) "FIRST!!!")
-  (check-equal? (send m2a count) 3)
-  (check-equal? (send m2a get-report) "Added (first) : FIRST!!!")
-  (check-equal? (send m3 next) item2)
-  (check-equal? (send m3 get-report) "Delayed : this is the first item")
-  (check-equal? (send m4 get-items) '("this is the first item" "a second item" "hello teenage america" "another green world"))
-  (check-equal? (send m4a get-items) '("this is the first item" "a second item" "hello teenage america" "another green world"))
-  (check-equal? (send m5 get-items) '("a second item" "hello teenage america" "this is the first item" "another green world"))
-  (check-equal? (send m5 get-report) "Delayed by 2 : this is the first item")
-  (check-equal? (send m5a get-items) '("a second item" "hello teenage america" "another green world" "this is the first item"))
-  (check-equal? (send m5a get-report) "Delayed to end : this is the first item")
-  (check-equal? (send m5 count) 4)
-  (check-equal? (send m6 get-report) "hello world")
-  (check-equal? (send m7 get-items) '("a second item" "this is the first item" "hello teenage america" "another green world"))
-  (check-equal? (send m7 get-report) "Pulling item to front")
-  (check-equal? (send m8 get-items) '( "hello teenage america" "another green world" "a second item" "this is the first item"))
-  (check-equal? (send m8 get-report) "Throwing item to back")  
-  (check-equal? (send m9 get-report) "Appended EXTRA WORDS WITH SPACES to this is the first item")
-  (check-equal? (send m9 get-items) '("this is the first item EXTRA WORDS WITH SPACES" "a second item" "hello teenage america" "another green world"))
-  (check-equal? (send m10 get-items) '( "hello teenage america" "another green world"))
-  (check-equal? (send m10 get-report) "Kill*ed ''item''")
-  (check-equal? (send m11 get-file-path) "a/path/to/")
-  (check-equal? (send m12 get-file) "todo.txt")
-  (check-equal? (send m12 get-file-path) "a/path/to/todo.txt")
+  (check-equal? (is-empty? m0) true)
+  (check-equal? (count m0) 0)
+  (check-equal? (make-file-path m0) "")
+  (check-equal? (next m1) item1)
+  (check-equal? (is-empty? m1) false)
+  (check-equal? (MTC-report m1) "Added : this is the first item")
+  (check-equal? (is-empty? m1a) true)
+  (check-equal? (MTC-report m1a) "Done : this is the first item")
+  (check-equal? (next m2) item1)
+  (check-equal? (next m2a) "FIRST!!!")
+  (check-equal? (count m2a) 3)
+  (check-equal? (MTC-report m2a) "Added (first) : FIRST!!!")
+  (check-equal? (next m3) item2)
+  (check-equal? (MTC-report m3) "Delayed : this is the first item")
+  (check-equal? (MTC-items m4) '("this is the first item" "a second item" "hello teenage america" "another green world"))
+  (check-equal? (MTC-items m4a) '("this is the first item" "a second item" "hello teenage america" "another green world"))
+  (check-equal? (MTC-items m5) '("a second item" "hello teenage america" "this is the first item" "another green world"))
+  (check-equal? (MTC-report m5) "Delayed by 2 : this is the first item")
+  (check-equal? (MTC-items m5a) '("a second item" "hello teenage america" "another green world" "this is the first item"))
+  (check-equal? (MTC-report m5a) "Delayed to end : this is the first item")
+  (check-equal? (count m5) 4)
+  (check-equal? (MTC-report m6) "hello world")
+  (check-equal? (MTC-items m7) '("a second item" "this is the first item" "hello teenage america" "another green world"))
+  (check-equal? (MTC-report m7) "Pulling item to front")
+  (check-equal? (MTC-items m8) '( "hello teenage america" "another green world" "a second item" "this is the first item"))
+  (check-equal? (MTC-report m8) "Throwing item to back")  
+  (check-equal? (MTC-report m9) "Appended EXTRA WORDS WITH SPACES to this is the first item")
+  (check-equal? (MTC-items m9) '("this is the first item EXTRA WORDS WITH SPACES" "a second item" "hello teenage america" "another green world"))
+  (check-equal? (MTC-items m10) '( "hello teenage america" "another green world"))
+  (check-equal? (MTC-report m10) "Kill*ed ''item''")
+  (check-equal? (MTC-path m11) "a/path/to/")
+  (check-equal? (MTC-file-name m12) "todo.txt")
+  (check-equal? (make-file-path m12) "a/path/to/todo.txt")
+  (check-equal? (make-file-path m13) "another/path/file.tmp")
+  (check-equal? (MTC-items m14) '("another green world" "this is the first item" "a second item" "hello teenage america"))
   )
 
 ; Testing actions
@@ -79,7 +83,7 @@
   )
 
 ; Pages
-(let* ([mtc (send+ (new-MTC) (over-file-path "/home/phil/pages/"))]
+(let* ([mtc (over-path (new-MTC) "/home/phil/pages/")]
        [pp (page-path mtc "hello-world")])
   (check-equal? pp "/home/phil/pages/hello-world.txt")
   )
