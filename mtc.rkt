@@ -18,19 +18,25 @@
     ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (MTC-items mtc))]
     ["h" "Commands
 
- s\tSAVE : If you do not explicitly save, you will lose what you put into MTC.
- h\tHelp : Shows this list of commands
- /\tDelay the current next-item ie. Push it to the end of the queue.
- //\tPush the current next-item 10 back.
- ///\tPush current next-item 50 back. 
- *\tDone / Delete. There's no difference. 
- c\tCount items in queue
- + TEXT\tfinds ALL items that contain TEXT and pulls them to the front of the queue. 
- - TEXT\tfinds ALL items that contain TEXT and pushes them to the end of the queue. 
- l\tShows the entire queue.
- ll\tA quick peek ahead at the first 10 items on queue.
- k* TEXT\tMulti-kill or bulk delete. It removes all items from the list that contain TEXT.
- e EXTRA TEXT\tAppends EXTRA TEXT to the next item."]
+  s\t\tSAVE : If you do not explicitly save, you will lose what you put into MTC.
+  h\t\tHelp : Shows this list of commands 
+  /\t\tDelay the current next-item ie. Push it to the end of the queue.
+  //\t\tPush the current next-item 10 back.
+  ///\t\tPush current next-item 50 back.
+  *\t\tDone / Delete. There's no difference. 
+  c\t\tCount items in queue
+  + TEXT\tfinds ALL items that contain TEXT and pulls them to the front of the queue. 
+  - TEXT\tfinds ALL items that contain TEXT and pushes them to the end of the queue.  
+  l\t\tShows the entire queue.
+  ll\t\tA quick peek ahead at the first 10 items on queue.
+  lll\t\tPeek ahead to first 50 items
+  \\\t\tPull the last item to the front
+  \\\\ ITEM TEXT\tAdd the new item at the front of the queue
+  k* TEXT\tMulti-kill or bulk delete. It removes all items from the list that contain TEXT.
+  e EXTRA TEXT\tAppends EXTRA TEXT to the next item.
+  a\t\tAnalyze a URL in an item (pull and show its title)
+"]
+               
               
     [_ (if (not (is-empty? mtc)) 
            (string-append "Next item : " (next mtc))
@@ -58,6 +64,7 @@
            (string-append "page " (page-path mtc arg) " exists")
            (string-append "page " (page-path mtc arg) " DOESN'T exist")))]
       [(string=? op "k*") (kill mtc  arg)]
+      [(string=? op "\\\\") (over-report (add-front mtc args) (string-append "Added in front : " args))] 
       [else (add mtc input)])))
       
 (define (process-short input mtc)

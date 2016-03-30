@@ -53,8 +53,12 @@ Type any line over 5 characters long to add it as a new todo item
 | `- TEXT` | finds ALL items that contain TEXT and pushes them to the end of the queue. The opposite of + ... this is for getting rid of an entire project if you know it's not something you want to think about at the moment. You can always pull it back to the front (ie. prioritize it) later. |
 | `l`  | List. You really shouldn't use this command. But occassionally you do need to scan the entire list. l lets you do it |
 | `ll` | a quick peek ahead at the first 10 items on queue
+| `lll`| peek the first 50 items on the queue
+| `\`  | Pull last item to front of queue.
+| `\\ ITEM` | Adds ITEM to the front of the queue
 | `k* TEXT` | be careful. This is multi-kill or bulk delete. It removes all items from the list that contain TEXT. Useful if you find that you've cancelled a project and want to remove all items from it from the queue. |
 | `e EXTRA TEXT` | appends EXTRA TEXT to the next item. There is currently no general edit item in MTC. But it's sometimes useful to be able to append some kind of extra tag or keyword to an existing item.|
+| `a`  | Analyze the URL in an item. Currently pulls the URL and shows its title. Useful if you've dropped a link into MTC to read later but can't remember what it is. (EXPERIMENTAL. MAY BREAK!) |
     
 
 ### Philosophy ###
