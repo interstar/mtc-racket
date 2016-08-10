@@ -13,6 +13,7 @@
 (define (display-state input mtc)
   (displayln (MTC-report mtc))
   (displayln (match input
+    ["llll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (MTC-items mtc) 500))]                              
     ["lll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (MTC-items mtc) 50))]               
     ["ll" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (safe-take (MTC-items mtc) 10))]               
     ["l" (foldl (lambda (s rest) (string-append rest "\n" s)) "" (MTC-items mtc))]
@@ -23,13 +24,18 @@
   /\t\tDelay the current next-item ie. Push it to the end of the queue.
   //\t\tPush the current next-item 10 back.
   ///\t\tPush current next-item 50 back.
+  ////\t\tPush current next-item 500 back.
   *\t\tDone / Delete. There's no difference. 
   c\t\tCount items in queue
   + TEXT\tfinds ALL items that contain TEXT and pulls them to the front of the queue. 
-  - TEXT\tfinds ALL items that contain TEXT and pushes them to the end of the queue.  
+  - TEXT\tfinds ALL items that contain TEXT and pushes them to the end of the queue.
+  -- TEXT\tfinds ALL items that contain TEXT and pushes them 10 back
+  --- TEXT\tfinds ALL items that contain TEXT and pushes them 50 back
+  ---- TEXT\tfinds ALL items that contain TEXT and pushes them 500 back
   l\t\tShows the entire queue.
   ll\t\tA quick peek ahead at the first 10 items on queue.
   lll\t\tPeek ahead to first 50 items
+  llll\t\tPeek ahead to first 500 items
   \\\t\tPull the last item to the front
   \\\\ ITEM TEXT\tAdd the new item at the front of the queue
   k* TEXT\tMulti-kill or bulk delete. It removes all items from the list that contain TEXT.
@@ -56,7 +62,16 @@
          [args (string-join (cdr command) " " )])
     (cond
       [(string=? op "+") (pull-to-front mtc  (λ (s) (regexp-match (pregexp arg) s)) (string-append "Pulled " arg))]
+
+      [(string=? op "----") (delay-pattern-by
+                             mtc (λ (s) (regexp-match (pregexp arg) s)) 500 (string-append "Pushed all " arg " 500 back"))]
+      [(string=? op "---") (delay-pattern-by
+                            mtc (λ (s) (regexp-match (pregexp arg) s)) 50 (string-append "Pushed all " arg " 50 back"))]
+      [(string=? op "--") (delay-pattern-by
+                           mtc (λ (s) (regexp-match (pregexp arg) s)) 10 (string-append "Pushed all " arg " 10 back "))]
+
       [(string=? op "-") (throw-to-back mtc  (λ (s) (regexp-match (pregexp arg) s)) (string-append "Thrown " arg))]
+ 
       [(string=? op "e") (edit mtc args)]
       [(string=? op "q") 
        (over-report mtc 
@@ -64,7 +79,7 @@
            (string-append "page " (page-path mtc arg) " exists")
            (string-append "page " (page-path mtc arg) " DOESN'T exist")))]
       [(string=? op "k*") (kill mtc  arg)]
-      [(string=? op "\\\\") (over-report (add-front mtc args) (string-append "Added in front : " args))] 
+      [(string=? op "\\\\") (over-report (add-front mtc args) (string-append "Added in front : " args))]      
       [else (add mtc input)])))
       
 (define (process-short input mtc)
@@ -72,6 +87,7 @@
     (if (> (string-length input) 5) (add mtc input) 
       (match input
         ["" (reply "")]
+        ["////" (delay-by mtc  500)]        
         ["///" (delay-by mtc  50)]
         ["//" (delay-by mtc  10)]
         ["/" (delay mtc )]
@@ -84,6 +100,7 @@
                (reply "Saved") )]
         ["ll" (reply "First 10")]
         ["lll" (reply "First 50")]
+        ["llll" (reply "First 500")]
         ["l" (reply "Your full list")]
         ["c" (reply (string-append "No items : " (number->string (count mtc ))))]
         ["h" (reply "MTC Help")]
@@ -114,10 +131,12 @@ Todo file is " (make-file-path mtc)))))
 ; See README for more info.
 ;
 (define (get-config home-path name default)
-  (let* ([config-path (string-append home-path "bin/.mtc/config.rkt")]
+  (let* ([config-path (string-append home-path "/bin/.mtc/config.rkt")]
          [path (string->path config-path)])
+    (displayln (string-append "CONfiG PATH " config-path))
     (with-handlers ([exn:fail? (λ (e) default)])
       (let* ([s (file->value (string->path config-path))])
+        (displayln s)
         (dict-ref s name default )))))
 
 

@@ -1,6 +1,6 @@
 #lang racket
 
-(require rackunit "tools.rkt" "actions.rkt")
+(require rackunit "tools.rkt" "actions.rkt" "faily.rkt")
 
 
 ; Testing MTC%
@@ -67,6 +67,14 @@
   (check-equal? (MTC-items m14) '("another green world" "this is the first item" "a second item" "hello teenage america"))
   )
 
+(let* ([m0 (new-MTC)]
+       [m1 (load-items m0 (map number->string (range 100)))])
+  (check-equal? (count m1) 100)
+  (check-equal? (next m1) "0")
+  (check-equal? (take (MTC-items (delay-pattern-by m1 (λ (s) (regexp-match (pregexp "0") s)) 10 "a report")) 13)
+                '("1" "2" "3" "4" "5" "6" "7" "8" "9" "11" "0" "10" "20"))
+  )
+
 ; Testing actions
 
 ; URLS
@@ -76,9 +84,9 @@
   (check-equal? (has-url "this contains https://url.com and other text") #t)
   (check-equal? (has-url "this contains https://url.com and other text another http://another.net") #t)
   
-  (check-equal? (extract-url "this contains https://url.com and other text") "https://url.com")
-  (check-equal? (extract-url "this contains http://url.com and other text") "http://url.com")
-  (check-equal? (extract-url "this contains http://url.com and other text another http://another.net") "http://url.com")  
+  (check-equal? (open (extract-url "this contains https://url.com and other text")) "https://url.com")
+  (check-equal? (open (extract-url "this contains http://url.com and other text")) "http://url.com")
+  (check-equal? (open (extract-url "this contains http://url.com and other text another http://another.net")) "http://url.com")  
   
   )
 

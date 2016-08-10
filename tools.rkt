@@ -62,6 +62,14 @@
              [misses (filter (λ(x)(not (p x))) (MTC-items mtc))])
         (over-report (over-items mtc (append hits misses)) rep )))
 
+(define (delay-pattern-by mtc p n rep)
+  (let* ([hits (filter p (MTC-items mtc))]
+         [misses (filter (λ(x)(not (p x))) (MTC-items mtc))]
+         [fronts (take misses n)]
+         [backs (drop misses n)]
+         [joined (append fronts hits backs)])
+    (over-report (over-items mtc joined) rep)))      
+
 (define (throw-to-back mtc p rep) (pull-to-front mtc (λ (x) (not (p x))) rep))
 
 (define (edit mtc extra)
@@ -81,5 +89,5 @@
 (provide new-MTC over-items over-report over-input 
          over-path over-file-name make-file-path over-file-path
          is-empty? count next tail add add-front load-items add* delay delay-by done
-         pull-last pull-to-front throw-to-back edit kill
+         pull-last pull-to-front throw-to-back edit kill delay-pattern-by
          MTC-items MTC-report MTC-path MTC-file-name)
