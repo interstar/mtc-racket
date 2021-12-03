@@ -75,3 +75,10 @@ So if you *are* trying out MTC, and you have an existing todo.txt or todo-list y
   
 Finally. MTC has always been also a learning exercise for me. Now it's my exercise for learning Racket and Lispy / Schemish ways of doing things. It will continue to be that. When Lispy comes into conflict with other requirements or nice-to-haves. Lispy and simple win.
 
+### NOTE :: THIS IS A DEPRECATED PROJECT
+
+Note that while MTC in Racket was a very fun and useful project, I have now pretty much abandoned it. 
+
+Not because I've given up on Mind Traffic Control as my todo-queue or as a useful concept. I still use it every day. But because I've now ported it to Clojure. See https://github.com/interstar/MTC-CLJ to get that and see further work in progress.
+
+Obviously if anyone in the Racket community wants to pick this up and continue developing it, I will be delighted. I have a lot of admiration and respect for both the Racket language and community. However, for me personally, Clojure turned out to be a better option for various projects, and so it's more convenient to move MTC into Clojure for consistancy / compatibility, than to continue riding two horses.
